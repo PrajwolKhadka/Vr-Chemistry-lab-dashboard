@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Survey Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .chart-container { height: 300px; margin: 20px 0; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        .pass { color: green; font-weight: bold; }
+        .fail { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Survey Results Analytics</h1>
+    
+    <div class="dashboard">
+        <!-- Summary Card -->
+        <div class="card">
+            <h2>Summary</h2>
+            <p>Total Responses: {{ total_responses }}</p>
+            <div class="chart-container">
+                <canvas id="passFailChart"></canvas>
+               
+            </div>
+        </div>
+        <div class="card">
+            <h2>Summary</h2>
+            <p>Total Responses: {{ total_responses }}</p>
+            <div class="chart-container">
+                <canvas id="genderChart"></canvas>
+            </div>
+        </div>
+         
+        <!-- Question Analysis -->
+        <div class="card">
+            <h2>Question Correctness</h2>
+            <div class="chart-container">
+                <canvas id="questionChart"></canvas>
+            </div>
+            <h3>Most Problematic Questions:</h3>
+            <ul>
+                {% for q in problematic_questions %}
+                <li>Question {{ q.number }}: {{ q.percentage }}% correct</li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <!-- Responses Table -->
+        <div class="card" style="grid-column: span 2;">
+            <h2>All Responses</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Gender</th>
+                        <th>Score</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for r in responses %}
+                <tr>
+                    <td>{{ r.id }}</td>
+                      <td>{{ r.player_name|default:"Anonymous" }}</td>
+                      <td>{{ r.get_gender_display|default:"Unknown" }}</td>
+                    <td>{{ r.score }}/8</td>
+                    <td class="{% if r.passed %}pass{% else %}fail{% endif %}">
+                        {% if r.passed %}PASS{% else %}FAIL{% endif %}
+                    </td>
+                    
+                </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Pass/Fail Chart
+        new Chart(
+            document.getElementById('passFailChart'),
+            {
+                type: 'pie',
+                data: {
+                    labels: ['Pass', 'Fail'],
+                    datasets: [{
+                        data: [{{ pass_count }}, {{ fail_count }}],
+                        backgroundColor: ['#4CAF50', '#F44336']
+                    }]
+                }
+            }
+        );
+        
+        new Chart(
+            document.getElementById('genderChart'),
+            {
+                // Gender Pass Chart
+            "type": "bar",
+            "data": {
+                "labels": [{% for g in gender_stats %}"{{ g.gender }}"{% if not forloop.last %},{% endif %}{% endfor %}],
+                "datasets": [{
+                    "label": "Number of Passes",
+                    "data": [{% for g in gender_stats %}{{ g.pass_count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                    "backgroundColor": ["#2196F3", "#FF69B4"]
+                }]
+            },
+            "options": {
+                "scales": {
+                    "y": {
+                        "beginAtZero": true,
+                        "title": {
+                            "display": true,
+                            "text": "Number of Passes"
+                        }
+                    },
+                    "x": {
+                        "title": {
+                            "display": true,
+                            "text": "Gender"
+                        }
+                    }
+                }
+            }
+            }
+        );
+        // Question Correctness Chart
+        new Chart(
+            document.getElementById('questionChart'),
+            {
+                type: 'bar',
+                data: {
+                    labels: [{% for q in question_stats %}'Q{{ q.number }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+                    datasets: [{
+                        label: 'Correct Answers (%)',
+                        data: [{% for q in question_stats %}{{ q.percentage }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                        backgroundColor: '#2196F3'
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            }
+        );
+    </script>
+</body>
+</html>
