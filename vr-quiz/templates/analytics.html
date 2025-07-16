@@ -4,19 +4,43 @@
     <title>Survey Analytics</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
+        body { font-family: Arial, sans-serif; margin: 20px;}
         .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .card { background: rgb(237, 237, 237); padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .chart-container { height: 300px; margin: 20px 0; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
         .pass { color: green; font-weight: bold; }
         .fail { color: red; font-weight: bold; }
+
+        .print-btn {
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.print-btn:hover {
+    background-color: #1976D2;
+    transform: translateY(-2px);
+}
+
+.print-btn:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
     </style>
 </head>
 <body>
+    <div id="printable">
     <h1>Survey Results Analytics</h1>
-    
+    <button class="print-btn" onclick="window.print()">Download PDF</button>
     <div class="dashboard">
         <!-- Summary Card -->
         <div class="card">
@@ -79,7 +103,7 @@
             </table>
         </div>
     </div>
-
+    </div>
     <script>
         // Pass/Fail Chart
         new Chart(
